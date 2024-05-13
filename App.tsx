@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import Expense from "./src/components/Expense";
 import Income from "./src/components/Income";
 import { AppRegistry } from "react-native";
@@ -16,7 +16,7 @@ const client = new ApolloClient({
 export default function App() {
   return (
     <ApolloProvider client={client}>
-      <View style={styles.container}>
+      <View className="flex-1 justify-center bg-black p-6">
         <Account />
         <Income />
         <Expense />
@@ -25,14 +25,5 @@ export default function App() {
     </ApolloProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center", // 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly'
-    backgroundColor: "black",
-    paddingHorizontal: 25,
-  },
-});
 
 AppRegistry.registerComponent("MyApplication", () => App);
