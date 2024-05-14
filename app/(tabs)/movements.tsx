@@ -1,8 +1,7 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import React from "react";
-//import ListMovements from "../../components/ListMovements";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
-import { Link } from "expo-router";
+import MovementsList from "../../components/MovementsList";
 
 // Initialize Apollo Client
 const client = new ApolloClient({
@@ -11,17 +10,12 @@ const client = new ApolloClient({
   connectToDevTools: true,
 });
 
-const Movements = () => {
+export default function Tab() {
   return (
     <ApolloProvider client={client}>
       <View className="flex-1 justify-center bg-black p-6">
-        <Link href="/">
-          <Text className="text-white font-bold">Go Init</Text>
-        </Link>
-        {/* <ListMovements /> */}
+        <MovementsList />
       </View>
     </ApolloProvider>
   );
-};
-
-export default Movements;
+}
