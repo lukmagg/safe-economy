@@ -16,6 +16,7 @@ import DateTimePicker, {
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
+import { router } from "expo-router";
 
 const ADD_EXPENSE = gql`
   mutation CreateExpense($createExpenseDto: CreateExpenseDto!) {
@@ -58,7 +59,8 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
 
   useEffect(() => {
     if (data) {
-      alert(JSON.stringify(data, null, 2));
+      // alert(JSON.stringify(data, null, 2));
+      closeModal();
     }
     if (error) {
       console.log(error);
@@ -80,6 +82,7 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
   const handleSubmit = async (values: Expense) => {
     values.amount = Number(values.amount);
     values.paymentType = paymentType;
+    values.paymentDate = date;
 
     console.log(values);
 
