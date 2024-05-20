@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Formik } from "formik";
 import { PaymentType } from "./../constants";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
@@ -17,6 +17,7 @@ import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
 import Toast from "react-native-toast-message";
+import { Context } from "../context";
 
 const showToast = (type: string, text1: string, text2: any) => {
   Toast.show({
@@ -54,6 +55,7 @@ interface ExpenseModal {
 }
 
 const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
+  const [signedIn, setSignedIn] = useContext(Context);
   const [date, setDate] = useState(new Date());
   const [paymentType, setPaymentType] = useState(PaymentType.CASH);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -66,6 +68,7 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
     closeModal();
 
     if (data) {
+      setSignedIn(true);
       // alert(JSON.stringify(data, null, 2));
       showToast("success", "very nice", "good job");
     } else if (error) {

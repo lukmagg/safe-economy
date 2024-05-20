@@ -1,11 +1,12 @@
 import { View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Account from "../../components/Account";
 import Income from "../../components/Income";
 import Expense from "../../components/Expense";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import Toast from "react-native-toast-message";
 import { styled } from "nativewind";
+import { Context } from "../../context";
 
 const StyledView = styled(View);
 
@@ -17,13 +18,16 @@ const client = new ApolloClient({
 });
 
 export default function Tab() {
+  const [signedIn, setSignedIn] = useState(false);
   return (
     <ApolloProvider client={client}>
       <StyledView className="flex-1 justify-center bg-black px-2">
         <Income />
-        <Expense />
+        <Context.Provider value={[signedIn, setSignedIn]}>
+          <Expense />
+          <Account />
+        </Context.Provider>
         <Toast />
-        <Account />
       </StyledView>
     </ApolloProvider>
   );
