@@ -15,6 +15,15 @@ import DateTimePicker, {
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
+import Toast from "react-native-toast-message";
+
+const showToast = (type: string, text1: string, text2: any) => {
+  Toast.show({
+    type,
+    text1,
+    text2,
+  });
+};
 
 const ADD_INCOME = gql`
   mutation CreateIncome($createIncomeDto: CreateIncomeDto!) {
@@ -49,15 +58,16 @@ const IncomeModal: React.FC<IncomeModal> = ({ visible, closeModal }) => {
 
   const [executeMutation, { loading, error, data }] = useMutation(ADD_INCOME);
 
-  if (error) console.log(`Submission error! ${error.message}`);
+  //if (error) console.log(`Submission error! ${error.message}`);
   // if (data) console.log(data);
 
   useEffect(() => {
+    closeModal();
+
     if (data) {
-      alert(JSON.stringify(data, null, 2));
-    }
-    if (error) {
-      console.log(error);
+      showToast("success", "very nice", "good job");
+    } else if (error) {
+      showToast("error", "useEffect", error.message);
     }
   }, [data]);
 
@@ -75,14 +85,18 @@ const IncomeModal: React.FC<IncomeModal> = ({ visible, closeModal }) => {
 
   const handleSubmit = async (values: Income) => {
     values.amount = Number(values.amount);
+    values.paymentDate = date;
 
-    console.log(values);
-
-    await executeMutation({
-      variables: {
-        createIncomeDto: values,
-      },
-    });
+    try {
+      await executeMutation({
+        variables: {
+          createIncomeDto: values,
+        },
+      });
+    } catch (error) {
+      closeModal();
+      showToast("error", "handleSubmit", error);
+    }
   };
 
   return (

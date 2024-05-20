@@ -16,7 +16,15 @@ import DateTimePicker, {
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
-import { router } from "expo-router";
+import Toast from "react-native-toast-message";
+
+const showToast = (type: string, text1: string, text2: any) => {
+  Toast.show({
+    type,
+    text1,
+    text2,
+  });
+};
 
 const ADD_EXPENSE = gql`
   mutation CreateExpense($createExpenseDto: CreateExpenseDto!) {
@@ -54,16 +62,14 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
 
   const [executeMutation, { loading, error, data }] = useMutation(ADD_EXPENSE);
 
-  if (error) console.log(`Submission error! ${error.message}`);
-  // if (data) console.log(data);
-
   useEffect(() => {
+    closeModal();
+
     if (data) {
       // alert(JSON.stringify(data, null, 2));
-      closeModal();
-    }
-    if (error) {
-      console.log(error);
+      showToast("success", "very nice", "good job");
+    } else if (error) {
+      showToast("error", "something bad", error.message);
     }
   }, [data]);
 
@@ -84,13 +90,18 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
     values.paymentType = paymentType;
     values.paymentDate = date;
 
-    console.log(values);
+    // console.log(values);
 
-    await executeMutation({
-      variables: {
-        createExpenseDto: values,
-      },
-    });
+    try {
+      await executeMutation({
+        variables: {
+          createExpenseDto: values,
+        },
+      });
+    } catch (error) {
+      closeModal();
+      showToast("error", "something bad", error);
+    }
   };
 
   return (
