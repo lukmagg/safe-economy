@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -7,73 +7,22 @@ import {
   Text,
   StatusBar,
 } from "react-native";
+import { gql, useQuery } from "@apollo/client";
+import { MovementsContext } from "../context";
 
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    description: "First Item",
-    amount: 45,
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    description: "Second Item",
-    amount: 45,
-  },
-  {
-    id: "5869aa0f-3da1-471f-bd96-145571e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-461f-bd96-145571e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-771f-bd96-145571e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd36-145571e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd06-145571e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145570e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29072",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145579e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145271e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    description: "Third Item",
-    amount: 45,
-  },
-];
+const MONTH_EXPENSES = gql`
+  query GetMonthExpenses {
+    monthExpenses {
+      id
+      description
+      amount
+    }
+  }
+`;
 
-type ItemProps = { description: string; amount: number };
+type ItemProps = { id: string; description: string; amount: number };
 
-const Item = ({ description, amount }: ItemProps) => (
+const Item = ({ id, description, amount }: ItemProps) => (
   <View style={styles.item}>
     <Text style={styles.description}>
       {description} - {amount}
@@ -82,12 +31,34 @@ const Item = ({ description, amount }: ItemProps) => (
 );
 
 const MovementsList = () => {
+  const { loading, error, data, refetch } = useQuery(MONTH_EXPENSES);
+  const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
+
+  const [monthExpenses, setMonthExpenses] = useState<ItemProps[]>();
+
+  useEffect(() => {
+    if (data) {
+      if (refetchMovements) {
+        refetch();
+        setRefetchMovements(false);
+      }
+      setMonthExpenses([...data.monthExpenses]);
+    }
+    if (error) {
+      console.log(error.message);
+    }
+  }, [data, error, refetchMovements]);
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={DATA}
+        data={monthExpenses}
         renderItem={({ item }) => (
-          <Item description={item.description} amount={item.amount} />
+          <Item
+            id={item.id}
+            description={item.description}
+            amount={item.amount}
+          />
         )}
         keyExtractor={(item) => item.id}
       />

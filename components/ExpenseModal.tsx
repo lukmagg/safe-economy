@@ -17,13 +17,14 @@ import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
 import Toast from "react-native-toast-message";
-import { Context } from "../context";
+import { Context, MovementsContext } from "../context";
 
 const showToast = (type: string, text1: string, text2: any) => {
   Toast.show({
     type,
     text1,
     text2,
+    position: "bottom",
   });
 };
 
@@ -55,7 +56,8 @@ interface ExpenseModal {
 }
 
 const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
-  const [signedIn, setSignedIn] = useContext(Context);
+  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(Context);
+  const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
   const [date, setDate] = useState(new Date());
   const [paymentType, setPaymentType] = useState(PaymentType.CASH);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -68,7 +70,8 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
     closeModal();
 
     if (data) {
-      setSignedIn(true);
+      setRefetchMovements(true);
+      setRefetchTotalSpent(true);
       // alert(JSON.stringify(data, null, 2));
       showToast("success", "very nice", "good job");
     } else if (error) {

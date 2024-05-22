@@ -10,22 +10,22 @@ const TOTAL_SPENT = gql`
 `;
 
 const Account = () => {
-  const [signedIn, setSignedIn] = useContext(Context);
-  const [totalSpent, setTotalSpent] = useState(10);
+  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(Context);
+  const [totalSpent, setTotalSpent] = useState(0);
   const { loading, error, data, refetch } = useQuery(TOTAL_SPENT);
 
   useEffect(() => {
     if (data) {
-      if (signedIn) {
+      if (refetchTotalSpent) {
         refetch();
-        setSignedIn(false);
+        setRefetchTotalSpent(false);
       }
       setTotalSpent(data.totalSpent);
     }
     if (error) {
       console.log(error.message);
     }
-  }, [data, error, signedIn]);
+  }, [data, error, refetchTotalSpent]);
 
   return (
     <View style={styles.view}>
