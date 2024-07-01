@@ -1,25 +1,23 @@
 import { Text, View } from "react-native";
 import React from "react";
-import MovementsList from "../../components/MovementsList";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import MovementsList from "../components/MovementsList";
+import { ApolloProvider } from "@apollo/client";
 import { Link } from "expo-router";
+import { client } from "../apolloClient";
+import { styled } from "nativewind";
 
-// Initialize Apollo Client
-const client = new ApolloClient({
-  uri: "http://192.168.0.15:3001/graphql/",
-  cache: new InMemoryCache(),
-  connectToDevTools: true,
-});
+const StyledView = styled(View);
+const StyledText = styled(Text);
 
 const Movements = () => {
   return (
     <ApolloProvider client={client}>
-      <View className="flex-1 justify-center bg-black p-6">
+      <StyledView className="flex-1 justify-center bg-black p-6">
         <Link href="/">
-          <Text className="text-white font-bold">Go Init</Text>
+          <StyledText className="text-white font-bold">Go Init</StyledText>
         </Link>
         <MovementsList />
-      </View>
+      </StyledView>
     </ApolloProvider>
   );
 };

@@ -5,7 +5,6 @@ import {
   Text,
   TextInput,
   Modal,
-  Button,
 } from "react-native";
 import { Formik } from "formik";
 import { PaymentType } from "./../constants";
@@ -73,9 +72,9 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
       setRefetchMovements(true);
       setRefetchTotalSpent(true);
       // alert(JSON.stringify(data, null, 2));
-      showToast("success", "very nice", "good job");
+      showToast("success", "very nice!", "good job");
     } else if (error) {
-      showToast("error", "something bad", error.message);
+      showToast("error", "something was bad!", error.message);
     }
   }, [data]);
 
@@ -105,9 +104,9 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
         },
       });
     } catch (error) {
-      closeModal();
-      showToast("error", "something bad", error);
+      showToast("error", "something was bad", error);
     }
+    closeModal();
   };
 
   return (

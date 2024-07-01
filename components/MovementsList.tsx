@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { gql, useQuery } from "@apollo/client";
 import { MovementsContext } from "../context";
+import { ItemProps } from "../constants";
+import MovementItem from "./MovementItem";
 
 const MONTH_EXPENSES = gql`
   query GetMonthExpenses {
@@ -19,16 +21,6 @@ const MONTH_EXPENSES = gql`
     }
   }
 `;
-
-type ItemProps = { id: string; description: string; amount: number };
-
-const Item = ({ id, description, amount }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.description}>
-      {description} - {amount}
-    </Text>
-  </View>
-);
 
 const MovementsList = () => {
   const { loading, error, data, refetch } = useQuery(MONTH_EXPENSES);
@@ -54,7 +46,7 @@ const MovementsList = () => {
       <FlatList
         data={monthExpenses}
         renderItem={({ item }) => (
-          <Item
+          <MovementItem
             id={item.id}
             description={item.description}
             amount={item.amount}

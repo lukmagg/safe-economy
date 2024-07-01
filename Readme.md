@@ -8,7 +8,7 @@ Luego...
 Ir a la carpeta del proyecto y correr npx expo start
 Elejir la opcion 'a'
 
-Luego elegir opcion 'r' para poder debugear
+Luego elegir opcion 'j' para poder debugear
 
 ---
 
