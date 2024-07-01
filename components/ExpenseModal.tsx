@@ -15,17 +15,8 @@ import DateTimePicker, {
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
-import Toast from "react-native-toast-message";
 import { Context, MovementsContext } from "../context";
-
-const showToast = (type: string, text1: string, text2: any) => {
-  Toast.show({
-    type,
-    text1,
-    text2,
-    position: "bottom",
-  });
-};
+import { showToast } from "../notifications";
 
 const ADD_EXPENSE = gql`
   mutation CreateExpense($createExpenseDto: CreateExpenseDto!) {

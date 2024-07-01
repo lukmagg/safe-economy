@@ -5,7 +5,6 @@ import {
   Text,
   TextInput,
   Modal,
-  Button,
 } from "react-native";
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
@@ -15,15 +14,17 @@ import DateTimePicker, {
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
 import { gql } from "graphql-tag";
-import Toast from "react-native-toast-message";
+import { showToast } from "../notifications";
 
-const showToast = (type: string, text1: string, text2: any) => {
-  Toast.show({
-    type,
-    text1,
-    text2,
-  });
-};
+// import Toast from "react-native-toast-message";
+
+// const showToast = (type: string, text1: string, text2: any) => {
+//   Toast.show({
+//     type,
+//     text1,
+//     text2,
+//   });
+// };
 
 const ADD_INCOME = gql`
   mutation CreateIncome($createIncomeDto: CreateIncomeDto!) {
