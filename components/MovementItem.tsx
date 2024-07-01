@@ -40,15 +40,16 @@ function MovementItem({ id, description, amount }: ItemProps) {
       </StyledText>
       <StyledPressable
         onPress={() => console.log("update")}
-        className="rounded-md border-2 border-sky-500 mb-4 p-2"
+        className=" mb-4 p-2"
       >
         <StyledText className="uppercase text-white font-bold text-xl">
           edit
         </StyledText>
       </StyledPressable>
       <StyledPressable
-        onPress={() => handleDelete(id)}
-        className="rounded-md border-2 border-sky-500 p-2"
+        onPress={() => console.log("delete")}
+        //onPress={() => handleDelete(id)}
+        className=" p-2"
       >
         <StyledText className="uppercase text-white font-bold text-xl">
           delete
