@@ -10,10 +10,8 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 
 const DELETE_EXPENSE = gql`
-  mutation CreateExpense($id: string!) {
-    deleteExpense(id: $id) {
-      id
-    }
+  mutation DeleteExpense($id: String!) {
+    deleteExpense(id: $id)
   }
 `;
 
@@ -27,7 +25,7 @@ function MovementItem({ id, description, amount }: ItemProps) {
     try {
       await executeDeleteMutation({
         variables: {
-          createExpenseDto: id,
+          id,
         },
       });
     } catch (error) {
