@@ -14,6 +14,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
+import { gql } from "graphql-tag";
 import { SpentContext, MovementsContext } from "../context";
 import { showToast } from "../notifications";
 
@@ -73,8 +74,6 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
     values.amount = Number(values.amount);
     values.paymentType = paymentType;
     values.paymentDate = date;
-
-    // console.log(values);
 
     try {
       await executeMutation({

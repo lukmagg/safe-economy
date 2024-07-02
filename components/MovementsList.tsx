@@ -9,33 +9,22 @@ import {
   StatusBar,
 } from "react-native";
 import { useQuery, useMutation } from "@apollo/client";
-import { MovementsContext } from "../context";
+import { MovementsContext, SpentContext } from "../context";
 import { showToast } from "../notifications";
-import {
-  DELETE_EXPENSE,
-  ItemProps,
-  MONTH_EXPENSES,
-  TOTAL_SPENT,
-} from "../constants";
+import { DELETE_EXPENSE, ItemProps, MONTH_EXPENSES } from "../constants";
 
 const MovementsList = () => {
+  const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
+  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(SpentContext);
+
+  const [monthExpenses, setMonthExpenses] = useState<ItemProps[]>();
+
   const {
     loading: loadingExpenses,
     error: errorExpenses,
     data: dataExpenses,
     refetch: refetchExpenses,
   } = useQuery(MONTH_EXPENSES);
-
-  const {
-    loading: loadingSpent,
-    error: errorSpent,
-    data: dataSpent,
-    refetch: refetchSpent,
-  } = useQuery(TOTAL_SPENT);
-
-  const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
-
-  const [monthExpenses, setMonthExpenses] = useState<ItemProps[]>();
 
   const [
     executeDeleteMutation,
@@ -46,11 +35,18 @@ const MovementsList = () => {
     if (dataExpenses) {
       setMonthExpenses([...dataExpenses.monthExpenses]);
     }
-    refetchExpenses();
     if (errorExpenses) {
       console.log(errorExpenses.message);
     }
-  }, [dataExpenses, errorExpenses, refetchMovements]);
+  }, [dataExpenses, errorExpenses]);
+
+  useEffect(() => {
+    refetchExpenses();
+    setRefetchMovements(false);
+    if (errorExpenses) {
+      console.log(errorExpenses.message);
+    }
+  }, [refetchMovements]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -59,9 +55,8 @@ const MovementsList = () => {
           id,
         },
       });
-      //setRefetchMovements(true);
       refetchExpenses();
-      refetchSpent();
+      setRefetchTotalSpent(true);
     } catch (error) {
       showToast("error", "something was bad", error);
     }
@@ -97,17 +92,19 @@ const MovementsList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={monthExpenses}
-        renderItem={({ item }) => (
-          <MovementItem
-            id={item.id}
-            description={item.description}
-            amount={item.amount}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-      />
+      {monthExpenses && (
+        <FlatList
+          data={monthExpenses}
+          renderItem={({ item }) => (
+            <MovementItem
+              id={item.id}
+              description={item.description}
+              amount={item.amount}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </SafeAreaView>
   );
 };
