@@ -7,27 +7,15 @@ import {
   Modal,
 } from "react-native";
 import { Formik } from "formik";
-import { PaymentType } from "./../constants";
+import { ADD_EXPENSE, PaymentType } from "./../constants";
 import { useContext, useEffect, useState } from "react";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
-import { gql } from "graphql-tag";
-import { Context, MovementsContext } from "../context";
+import { SpentContext, MovementsContext } from "../context";
 import { showToast } from "../notifications";
-
-const ADD_EXPENSE = gql`
-  mutation CreateExpense($createExpenseDto: CreateExpenseDto!) {
-    createExpense(createExpenseDto: $createExpenseDto) {
-      id
-      description
-      amount
-      paymentType
-    }
-  }
-`;
 
 interface Expense {
   description: string;
@@ -46,7 +34,7 @@ interface ExpenseModal {
 }
 
 const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
-  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(Context);
+  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(SpentContext);
   const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
   const [date, setDate] = useState(new Date());
   const [paymentType, setPaymentType] = useState(PaymentType.CASH);

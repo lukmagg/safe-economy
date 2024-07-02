@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import MovementsList from "../../components/MovementsList";
 import { styled } from "nativewind";
 

@@ -1,31 +1,29 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { gql, useQuery } from "@apollo/client";
-import { Context } from "../context";
-
-const TOTAL_SPENT = gql`
-  query TotalSpentThisMonth {
-    totalSpent
-  }
-`;
+import { useQuery } from "@apollo/client";
+import { SpentContext } from "../context";
+import { TOTAL_SPENT } from "../constants";
 
 const Account = () => {
-  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(Context);
+  const [refetchTotalSpent, setRefetchTotalSpent] = useContext(SpentContext);
   const [totalSpent, setTotalSpent] = useState(0);
   const { loading, error, data, refetch } = useQuery(TOTAL_SPENT);
 
   useEffect(() => {
+    if (refetchTotalSpent) {
+      refetch();
+      setRefetchTotalSpent(false);
+    }
+  }, [refetchTotalSpent]);
+
+  useEffect(() => {
     if (data) {
-      if (refetchTotalSpent) {
-        refetch();
-        setRefetchTotalSpent(false);
-      }
       setTotalSpent(data.totalSpent);
     }
     if (error) {
       console.log(error.message);
     }
-  }, [data, error, refetchTotalSpent]);
+  }, [data, error]);
 
   return (
     <View style={styles.view}>

@@ -5,7 +5,7 @@ import Income from "../../components/Income";
 import Expense from "../../components/Expense";
 import Toast from "react-native-toast-message";
 import { styled } from "nativewind";
-import { Context } from "../../context";
+import { SpentContext } from "../../context";
 
 const StyledView = styled(View);
 
@@ -14,10 +14,10 @@ export default function Tab() {
   return (
     <StyledView className="flex-1 justify-center bg-black px-2">
       <Income />
-      <Context.Provider value={[refetchTotalSpent, setRefetchTotalSpent]}>
+      <SpentContext.Provider value={[refetchTotalSpent, setRefetchTotalSpent]}>
         <Expense />
         <Account />
-      </Context.Provider>
+      </SpentContext.Provider>
       <Toast />
     </StyledView>
   );

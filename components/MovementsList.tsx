@@ -8,65 +8,92 @@ import {
   Pressable,
   StatusBar,
 } from "react-native";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import { MovementsContext } from "../context";
-import { styled } from "nativewind";
-
-const StyledView = styled(View);
-const StyledText = styled(Text);
-const StyledPressable = styled(Pressable);
-
-const MONTH_EXPENSES = gql`
-  query GetMonthExpenses {
-    monthExpenses {
-      id
-      description
-      amount
-    }
-  }
-`;
-
-type ItemProps = { id: string; description: string; amount: number };
-
-const MovementItem = ({ id, description, amount }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.text}>
-      {description} - {amount}
-    </Text>
-    <View style={styles.buttonsContainer}>
-      <Pressable onPress={() => console.log("update")}>
-        <Text style={[styles.text, styles.textButton]}>edit</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => console.log("delete")}
-        //onPress={() => handleDelete(id)}
-      >
-        <Text style={[styles.text, styles.textButton, styles.deleteButton]}>
-          delete
-        </Text>
-      </Pressable>
-    </View>
-  </View>
-);
+import { showToast } from "../notifications";
+import {
+  DELETE_EXPENSE,
+  ItemProps,
+  MONTH_EXPENSES,
+  TOTAL_SPENT,
+} from "../constants";
 
 const MovementsList = () => {
-  const { loading, error, data, refetch } = useQuery(MONTH_EXPENSES);
+  const {
+    loading: loadingExpenses,
+    error: errorExpenses,
+    data: dataExpenses,
+    refetch: refetchExpenses,
+  } = useQuery(MONTH_EXPENSES);
+
+  const {
+    loading: loadingSpent,
+    error: errorSpent,
+    data: dataSpent,
+    refetch: refetchSpent,
+  } = useQuery(TOTAL_SPENT);
+
   const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
 
   const [monthExpenses, setMonthExpenses] = useState<ItemProps[]>();
 
+  const [
+    executeDeleteMutation,
+    { loading: loadingDelete, error: errorDelete, data: dataDetele },
+  ] = useMutation(DELETE_EXPENSE);
+
   useEffect(() => {
-    if (data) {
-      if (refetchMovements) {
-        refetch();
-        setRefetchMovements(false);
-      }
-      setMonthExpenses([...data.monthExpenses]);
+    if (dataExpenses) {
+      setMonthExpenses([...dataExpenses.monthExpenses]);
     }
-    if (error) {
-      console.log(error.message);
+    refetchExpenses();
+    if (errorExpenses) {
+      console.log(errorExpenses.message);
     }
-  }, [data, error, refetchMovements]);
+  }, [dataExpenses, errorExpenses, refetchMovements]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await executeDeleteMutation({
+        variables: {
+          id,
+        },
+      });
+      //setRefetchMovements(true);
+      refetchExpenses();
+      refetchSpent();
+    } catch (error) {
+      showToast("error", "something was bad", error);
+    }
+  };
+
+  const MovementItem = ({ id, description, amount }: ItemProps) => (
+    <View style={styles.item}>
+      <View style={styles.textContainer}>
+        <Text style={styles.text}>{description}</Text>
+        <Text style={styles.text}>{amount}€</Text>
+      </View>
+      <View style={styles.buttonsContainer}>
+        <Pressable onPress={() => console.log("update")}>
+          <Text style={[styles.text, styles.textButton, styles.button]}>
+            edit
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => handleDelete(id)}>
+          <Text
+            style={[
+              styles.text,
+              styles.textButton,
+              styles.deleteButton,
+              styles.button,
+            ]}
+          >
+            delete
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,11 +119,24 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
+  button: {
+    margin: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 10,
+  },
   buttonsContainer: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
+    marginTop: 4,
+  },
+  textContainer: {
+    margin: 8,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   item: {
     padding: 10,
