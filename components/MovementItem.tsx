@@ -1,13 +1,16 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { DELETE_EXPENSE, ItemProps } from "../constants";
 import { Pressable, View, StyleSheet, Text } from "react-native";
 import { useMutation } from "@apollo/client";
 import { MovementsContext, SpentContext } from "../context";
 import { showToast } from "../notifications";
+import ExpenseModal from "./ExpenseModal";
 
 function MovementItem({ id, description, amount }: ItemProps) {
   const [refetchTotalSpent, setRefetchTotalSpent] = useContext(SpentContext);
   const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const [
     executeDeleteMutation,
@@ -27,14 +30,35 @@ function MovementItem({ id, description, amount }: ItemProps) {
       showToast("error", "something was bad", error);
     }
   };
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const dataExpense = {
+    id: id,
+    description: description,
+    amount: amount,
+    // paymentDate?: Date;
+  };
   return (
     <View style={styles.item}>
+      <ExpenseModal
+        visible={modalVisible}
+        closeModal={closeModal}
+        dataExpense={dataExpense}
+      />
+
       <View style={styles.textContainer}>
         <Text style={styles.text}>{description}</Text>
         <Text style={styles.text}>{amount}€</Text>
       </View>
       <View style={styles.buttonsContainer}>
-        <Pressable onPress={() => console.log("update")}>
+        <Pressable onPress={openModal}>
           <Text style={[styles.text, styles.textButton, styles.button]}>
             edit
           </Text>
@@ -81,7 +105,6 @@ const styles = StyleSheet.create({
   item: {
     padding: 10,
     marginVertical: 8,
-    marginHorizontal: 16,
     borderWidth: 2,
     borderColor: "white",
     borderRadius: 10,

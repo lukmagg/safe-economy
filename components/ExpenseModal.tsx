@@ -7,22 +7,21 @@ import {
   Modal,
 } from "react-native";
 import { Formik } from "formik";
-import { ADD_EXPENSE, PaymentType } from "./../constants";
+import { ADD_EXPENSE, UPDATE_EXPENSE } from "./../constants";
 import { useContext, useEffect, useState } from "react";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import RNPickerSelect from "react-native-picker-select";
+//import RNPickerSelect from "react-native-picker-select";
 import { useMutation } from "@apollo/client";
-import { gql } from "graphql-tag";
 import { SpentContext, MovementsContext } from "../context";
 import { showToast } from "../notifications";
 
 interface Expense {
+  id?: string;
   description: string;
-  paymentType: PaymentType;
   amount: number;
-  paymentDate: Date | null;
+  paymentDate?: Date;
 }
 
 interface FuncionProp {
@@ -32,23 +31,31 @@ interface FuncionProp {
 interface ExpenseModal {
   closeModal: FuncionProp;
   visible: any;
+  dataExpense?: Expense;
 }
 
-const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
+const ExpenseModal: React.FC<ExpenseModal> = ({
+  visible,
+  closeModal,
+  dataExpense,
+}) => {
   const [refetchTotalSpent, setRefetchTotalSpent] = useContext(SpentContext);
   const [refetchMovements, setRefetchMovements] = useContext(MovementsContext);
   const [date, setDate] = useState(new Date());
-  const [paymentType, setPaymentType] = useState(PaymentType.CASH);
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   //const [componentMounted, setComponentMounted] = useState(false);
 
   const [executeMutation, { loading, error, data }] = useMutation(ADD_EXPENSE);
+  const [
+    executeUpdateMutation,
+    { loading: loadingUpdate, error: errorUpdate, data: dataUpdate },
+  ] = useMutation(UPDATE_EXPENSE);
 
   useEffect(() => {
     closeModal();
 
-    if (data) {
+    if (data || dataUpdate) {
       setRefetchMovements(true);
       setRefetchTotalSpent(true);
       // alert(JSON.stringify(data, null, 2));
@@ -56,7 +63,7 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
     } else if (error) {
       showToast("error", "something was bad!", error.message);
     }
-  }, [data]);
+  }, [data, dataUpdate]);
 
   const handleDateChange = (
     event: DateTimePickerEvent,
@@ -72,19 +79,33 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
 
   const handleSubmit = async (values: Expense) => {
     values.amount = Number(values.amount);
-    values.paymentType = paymentType;
     values.paymentDate = date;
 
     try {
-      await executeMutation({
-        variables: {
-          createExpenseDto: values,
-        },
-      });
+      if (dataExpense) {
+        await executeUpdateMutation({
+          variables: {
+            updateExpenseDto: { ...values },
+          },
+        });
+      } else {
+        await executeMutation({
+          variables: {
+            createExpenseDto: values,
+          },
+        });
+      }
     } catch (error) {
       showToast("error", "something was bad", error);
     }
     closeModal();
+  };
+
+  const initialValues = {
+    id: dataExpense?.id,
+    description: dataExpense?.description || "",
+    amount: dataExpense?.amount || 0,
+    paymentDate: new Date(),
   };
 
   return (
@@ -97,12 +118,7 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
       >
         <View style={styles.modalView}>
           <Formik
-            initialValues={{
-              description: "",
-              amount: 0,
-              paymentType: PaymentType.CASH,
-              paymentDate: new Date(),
-            }}
+            initialValues={initialValues}
             onSubmit={(values) => handleSubmit(values)}
           >
             {({
@@ -143,14 +159,6 @@ const ExpenseModal: React.FC<ExpenseModal> = ({ visible, closeModal }) => {
                     {errors.amount}
                   </Text>
                 )}
-
-                <RNPickerSelect
-                  onValueChange={(value) => setPaymentType(value)}
-                  items={[
-                    { label: "Cash", value: PaymentType.CASH },
-                    { label: "Credit card", value: PaymentType.CREDITCARD },
-                  ]}
-                />
 
                 <Pressable
                   style={styles.inputStyle}

@@ -1,10 +1,5 @@
 import { gql } from "@apollo/client";
 
-export enum PaymentType {
-  CASH = "CASH",
-  CREDITCARD = "CREDITCARD",
-}
-
 export type ItemProps = { id: string; description: string; amount: number };
 
 // QUERIES AND MUTATIONS
@@ -36,7 +31,16 @@ export const ADD_EXPENSE = gql`
       id
       description
       amount
-      paymentType
+    }
+  }
+`;
+
+export const UPDATE_EXPENSE = gql`
+  mutation UpdateExpense($updateExpenseDto: UpdateExpenseDto!) {
+    updateExpense(updateExpenseDto: $updateExpenseDto) {
+      id
+      description
+      amount
     }
   }
 `;
